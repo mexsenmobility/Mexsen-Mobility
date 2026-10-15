@@ -4,3 +4,4 @@ out/
 *.log
 .env*.local
 test/shots/
+tsconfig.tsbuildinfo

@@ -32,6 +32,30 @@ export default function ChoferHome() {
   }, [call]);
   useEffect(() => { if (user) cargar(); }, [user, cargar]);
 
+  // Comparte la ubicación con el administrador mientras la ruta está abierta (máximo una vez por minuto).
+  const rutaId = h?.ruta?.ID;
+  const enCurso = h?.ruta && ['Cargando', 'En ruta'].includes(h.ruta.Estado);
+  const [gps, setGps] = useState<'off' | 'on' | 'negado'>('off');
+  useEffect(() => {
+    if (!rutaId || !enCurso || !navigator.geolocation) return;
+    let ultimo = 0;
+    const id = navigator.geolocation.watchPosition(
+      (p) => {
+        setGps('on');
+        const ahora = Date.now();
+        if (ahora - ultimo < 60000) return;
+        ultimo = ahora;
+        call('chofer.ubicacion', {
+          rutaId, lat: p.coords.latitude, lng: p.coords.longitude,
+          precision: p.coords.accuracy, velocidad: p.coords.speed !== null ? p.coords.speed * 3.6 : null,
+        }).catch(() => {});
+      },
+      (e) => setGps(e.code === 1 ? 'negado' : 'off'),
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 30000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, [rutaId, enCurso, call]);
+
   async function escanear(texto: string) {
     if (!h?.ruta || ocupado.current) return;
     ocupado.current = true;
@@ -68,7 +92,10 @@ export default function ChoferHome() {
               <div><div className="text-[34px] font-extrabold">{r.Cargados || 0}</div><div className="text-sm text-white/70">cargados</div></div>
               {cerrada && <div><div className="text-[34px] font-extrabold">{r.Entregados || 0}</div><div className="text-sm text-white/70">entregados</div></div>}
             </div>
-            <div className="mt-2.5"><Pill tone={cerrada ? 'g' : 'b'}>{r.Estado}</Pill></div>
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              <Pill tone={cerrada ? 'g' : 'b'}>{r.Estado}</Pill>
+              {enCurso && <span id="gps" className="text-xs text-white/80">{gps === 'on' ? '📡 Ubicación activa' : gps === 'negado' ? '⚠️ Activa la ubicación para tu ruta' : '📡 Buscando señal…'}</span>}
+            </div>
           </div>
           {r.Link_ruta && (
             <a className="mb-3 flex min-h-[52px] items-center justify-center rounded-xl border-[1.5px] border-line bg-white font-bold text-navy" href={r.Link_ruta} target="_blank" rel="noopener">

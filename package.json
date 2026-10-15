@@ -1,6 +1,6 @@
 {
-  "name": "flotilla",
-  "version": "2.0.0",
+  "name": "mexsen-mobility",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,11 +13,13 @@
     "@supabase/supabase-js": "2.45.4",
     "@zxing/browser": "0.1.5",
     "@zxing/library": "0.21.3",
+    "leaflet": "1.9.4",
     "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
   "devDependencies": {
+    "@types/leaflet": "1.9.14",
     "@types/node": "20.16.11",
     "@types/react": "18.3.11",
     "@types/react-dom": "18.3.1",

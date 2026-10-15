@@ -4,15 +4,16 @@ import { useEffect, useState } from 'react';
 import { Shell, useSesion, Cargando } from '@/components/shell';
 import { Alerta, Btn, Card, Empty, Sec, Stat } from '@/components/ui';
 import { KpiCard, colorSalud, type Kpi } from '@/components/kpi';
-import { num } from '@/lib/format';
+import { fdate, num } from '@/lib/format';
 
 type Inicio = {
   rutas: number; enRuta: number; cerradas: number; cargados: number; entregados: number; incidAbiertas: number; noLeidos: number;
   alertas: { nivel: string; texto: string; donde: string }[];
   salud: { score: number | null; etiqueta: string; texto: string };
   brujulas: Kpi[]; tarifaConfigurada: boolean;
+  insights: { fecha: string | null; items: { tono: 'bueno' | 'malo' | 'neutro'; texto: string }[] };
 };
-const DESTINO: Record<string, string> = { config: '/admin/config/', choferes: '/admin/usuarios/', flota: '/admin/flota/', rutas: '/admin/rutas/' };
+const DESTINO: Record<string, string> = { config: '/admin/config/', choferes: '/admin/usuarios/', flota: '/admin/flota/', rutas: '/admin/rutas/', mapa: '/admin/mapa/' };
 
 export default function AdminInicio() {
   const { user, call } = useSesion('admin');
@@ -44,6 +45,18 @@ export default function AdminInicio() {
               <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-line"><i className="block h-full" style={{ width: `${s!.score}%`, background: colorSalud(s!.score) }} /></div>
             )}
           </Card>
+          {d.insights.items.length > 0 && (
+            <>
+              <Sec>Lo que cambió · {fdate(d.insights.fecha || '')}</Sec>
+              <Card>
+                {d.insights.items.map((x, i) => (
+                  <div key={i} className="insight flex gap-2 border-b border-line py-2 text-sm last:border-0">
+                    <span>{x.tono === 'bueno' ? '🟢' : x.tono === 'malo' ? '🔴' : '•'}</span><span>{x.texto}</span>
+                  </div>
+                ))}
+              </Card>
+            </>
+          )}
           <Sec>Brújulas del mes</Sec>
           {d.brujulas.map((k) => <KpiCard key={k.id} k={k} />)}
           <Sec>Alertas</Sec>

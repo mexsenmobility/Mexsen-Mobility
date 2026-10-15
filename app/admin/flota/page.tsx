@@ -7,7 +7,7 @@ import { fdate, money, num, today } from '@/lib/format';
 
 type Van = {
   ID: string; Alias: string; Marca: string; Modelo: string; Anio: number | ''; Placas: string; Km_actual: number; Proximo_servicio_km: number | '';
-  Seguro_vence: string; Verificacion_vence: string; Tenencia_vence: string; GPS_link: string; Activa: string; Notas: string;
+  Seguro_vence: string; Verificacion_vence: string; Tenencia_vence: string; GPS_link: string; Activa: string; Notas: string; Capacidad_tanque: number | '';
   km30: number; rend30: number | null; alertas: { nivel: string; texto: string }[]; ultimoChecklist: { fecha: string; fallas: string } | null;
 };
 
@@ -76,7 +76,7 @@ function EditarVan({ v, call, onClose, onSaved }: { v: Partial<Van>; call: any; 
       {c('va', 'Alias', 'Nombre corto (ej. Van 1)')}
       <div className="flex gap-2.5">{c('vm', 'Marca', 'Marca')}{c('vmo', 'Modelo', 'Modelo')}{c('vy', 'Anio', 'Año', 'number')}</div>
       <div className="flex gap-2.5">{c('vp', 'Placas', 'Placas')}{c('vk', 'Km_actual', 'Km actual', 'number')}</div>
-      {c('vs', 'Proximo_servicio_km', 'Próximo servicio (km)', 'number')}
+      <div className="flex gap-2.5">{c('vs', 'Proximo_servicio_km', 'Próximo servicio (km)', 'number')}{c('vct', 'Capacidad_tanque', 'Tanque (litros)', 'number')}</div>
       <div className="flex gap-2.5">{c('vse', 'Seguro_vence', 'Seguro vence', 'date')}{c('vve', 'Verificacion_vence', 'Verificación', 'date')}</div>
       {c('vte', 'Tenencia_vence', 'Tenencia / placas vence', 'date')}
       {c('vg', 'GPS_link', 'Link GPS de esta van (opcional)')}

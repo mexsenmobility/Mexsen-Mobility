@@ -6,7 +6,7 @@ const FOTO = '/tmp/fsb/ticket.jpg';
 const BASE = 'http://localhost:8790';
 (async () => {
   const browser = await chromium.launch();
-  const ctx = await browser.newContext({ ...devices['iPhone 13'] });
+  const ctx = await browser.newContext({ ...devices['iPhone 13'], permissions: ['geolocation'], geolocation: { latitude: 25.5428, longitude: -103.4068 } });
   await ctx.route(/fonts\.googleapis|fonts\.gstatic/, (r) => r.abort());
   const page = await ctx.newPage();
   const errors = [];
@@ -47,6 +47,7 @@ const BASE = 'http://localhost:8790';
   for (const k of ['Llantas', 'Luces', 'Aceite', 'Golpes', 'Limpieza']) await page.click(`[data-k=${k}] button:has-text("OK")`);
   await page.setInputFiles('#cfoto', FOTO); await page.click('#ckbtn'); console.log('  checklist:', await toastTxt());
   await page.waitForSelector('text=✅ Checklist de la van');
+  await page.waitForSelector('#gps:has-text("Ubicación activa")', { timeout: 10000 }); step('ubicación compartida'); await page.waitForTimeout(1500);
   await page.click('button:has-text("Escanear paquetes")'); await page.waitForSelector('#manual');
   for (const c of ['44111', '44222', '44222', '{"id":"44333","sender_id":1}', '00999']) { await page.fill('#manual', c); await page.click('#scanner button:has-text("OK")'); await page.waitForTimeout(450); }
   console.log('  contador escáner:', await page.textContent('#cnt'), '(esperado 4)'); await shot('05-scanner');
@@ -65,6 +66,15 @@ const BASE = 'http://localhost:8790';
 
   await login('santiago', '123456');
   await page.waitForSelector('.kpi'); await shot('07-admin-inicio');
+  console.log('  lo que cambió:', (await page.$$eval('.insight', (e) => e.map((x) => x.innerText.replace(/\n/g, ' ')))).join(' | ') || '(vacío)');
+  await tab('Mapa'); await page.waitForSelector('.item'); await page.waitForTimeout(1500);
+  console.log('  mapa:', (await page.$$eval('.leaflet-marker-icon', (e) => e.map((x) => x.innerText))).join(', ') || 'SIN MARCADORES', '·', (await page.textContent('.item')).replace(/\s+/g, ' ').slice(0, 120));
+  await shot('07b-mapa');
+  // historial: 10 días anteriores para probar las comparaciones
+  require('child_process').execSync(`psql -h /tmp/pg -p 5499 -U postgres -d t2 -q -c "insert into public.rutas (fecha, zona, chofer_id, van_id, estado, cargados, entregados, no_entregados, km_inicio, km_fin, hora_salida, hora_cierre) select (now() at time zone 'America/Monterrey')::date - g, 'Centro', r.chofer_id, r.van_id, 'Cerrada', 100, 92, 8, 20000+g*100, 20000+g*100+90, now() - (g||' days')::interval - interval '8 hours', now() - (g||' days')::interval from generate_series(1,10) g, (select chofer_id, van_id from public.rutas limit 1) r"`);
+  await tab('Inicio'); await page.waitForSelector('.insight');
+  console.log('  lo que cambió (con historial):', (await page.$$eval('.insight', (e) => e.map((x) => x.innerText.replace(/\n/g, ' ')))).join(' | '));
+  await shot('07c-insights');
   console.log('  stats:', (await page.$$eval('.stat', (e) => e.map((x) => x.innerText.replace(/\n/g, ' ')))).join(' | '));
   console.log('  alertas:', (await page.$$eval('.alert', (e) => e.map((x) => x.innerText))).join(' | '));
   await tab('Rutas'); await page.click('.item:has-text("Centro")'); await page.waitForSelector('text=Paquetes escaneados');

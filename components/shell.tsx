@@ -55,6 +55,7 @@ const I: Record<string, ReactNode> = {
   chart: <path d="M3 20h18M6 16V9M11 16V4M16 16v-6" />,
   more: <><circle cx="5" cy="12" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="19" cy="12" r="1.5" /></>,
   chat: <path d="M21 12a8 8 0 01-11.6 7.2L4 21l1.8-4.6A8 8 0 1121 12z" />,
+  map: <><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" /><path d="M9 4v14M15 6v14" /></>,
 };
 export const Icon = ({ name, className = 'h-[22px] w-[22px]' }: { name: string; className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>{I[name]}</svg>
@@ -63,6 +64,7 @@ export const Icon = ({ name, className = 'h-[22px] w-[22px]' }: { name: string; 
 const TABS = {
   admin: [
     { href: '/admin/', icon: 'home', label: 'Inicio' },
+    { href: '/admin/mapa/', icon: 'map', label: 'Mapa' },
     { href: '/admin/rutas/', icon: 'route', label: 'Rutas' },
     { href: '/admin/flota/', icon: 'van', label: 'Flota' },
     { href: '/admin/kpis/', icon: 'chart', label: 'KPIs' },
