@@ -4,6 +4,7 @@ import { Shell, useSesion, Cargando } from '@/components/shell';
 import { PANEL_URL } from '@/lib/api';
 
 const MENU = [
+  ['/admin/desempeno/', '🏆 Desempeño de choferes'],
   ['/admin/mensajes/', '💬 Mensajes con choferes'],
   ['/admin/gastos/', '💸 Gastos'],
   ['/admin/incidencias/', '⚠️ Incidencias'],

@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Shell, useSesion, Cargando } from '@/components/shell';
 import { Btn, Card, Chips, Empty, Item, Label, Modal, Pill, Sec, Seg, inputCls, useToast } from '@/components/ui';
 import { Scanner } from '@/components/scanner';
-import { fileToB64, ftime, geo, num } from '@/lib/format';
+import { Anillo, colorScore } from '@/components/score';
+import { fileToB64, ftime, geo, money, num } from '@/lib/format';
 
 type Home = {
   user: { id: string; nombre: string };
@@ -125,6 +126,7 @@ export default function ChoferHome() {
             <Btn variant="red" onClick={() => setPanel('incidencia')}>⚠️ Incidencia</Btn>
             <Btn variant="amber" onClick={() => setPanel('gasolina')}>⛽ Gasolina</Btn>
           </div>
+          <MiCalificacion key={r.Estado} call={call} />
           {h.ultimos.length > 0 && (
             <>
               <Sec>Últimos escaneados</Sec>
@@ -302,5 +304,30 @@ function Cerrar({ open, onClose, h, call, onDone }: PanelProps) {
       <input id="cnot" className={inputCls} value={f.notas} onChange={(e) => setF({ ...f, notas: e.target.value })} />
       <Btn id="cbtn" className="mt-4" disabled={busy} onClick={cerrar}>Cerrar ruta</Btn>
     </Modal>
+  );
+}
+
+function MiCalificacion({ call }: { call: (a: string, d?: any) => Promise<any> }) {
+  const [d, setD] = useState<any>(null);
+  useEffect(() => { call('chofer.desempeno', { dias: 7 }).then(setD).catch(() => setD(null)); }, [call]);
+  if (!d || !d.rutas) return null;
+  return (
+    <>
+      <Sec>Tu calificación · últimos 7 días</Sec>
+      <Card>
+        <div id="mi-score" className="flex items-center gap-3.5">
+          <Anillo score={d.score} />
+          <div>
+            <div className="font-bold" style={{ color: colorScore(d.score) }}>{d.nivel}</div>
+            <div className="text-[13px] text-mut">{d.rutas} rutas · {num(d.entregados)} paquetes entregados</div>
+            {d.bono !== null && <div className="text-sm font-semibold">Bono estimado: {money(d.bono)}</div>}
+          </div>
+        </div>
+        {d.consejo && <p className="mt-3 rounded-lg bg-blue-50 p-2.5 text-[13px] text-blue-900"><b>Para subir:</b> {d.consejo}</p>}
+        {d.bono !== null && d.score !== null && d.score < d.bonoFull && (
+          <p className="mt-2 text-xs text-mut">Con {d.bonoFull}+ puntos cobras el bono completo{d.score < d.bonoMin ? ` y con ${d.bonoMin}+ la mitad` : ''}.</p>
+        )}
+      </Card>
+    </>
   );
 }

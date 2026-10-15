@@ -5,7 +5,7 @@ import { Btn, Card, Label, inputCls, useToast } from '@/components/ui';
 import { Atras } from '@/components/atras';
 
 type Row = { Clave: string; Valor: string; Descripcion: string };
-const ORDEN = ['Nombre_negocio', 'Tarifa_por_paquete', 'Costo_van_nueva', 'GPS_link', 'Meta_tasa_entrega', 'Meta_margen', 'Meta_utilizacion', 'Intervalo_servicio_km', 'Dias_alerta_vencimiento'];
+const ORDEN = ['Nombre_negocio', 'Tarifa_por_paquete', 'Costo_van_nueva', 'GPS_link', 'Bono_por_paquete', 'Bono_score_minimo', 'Bono_score_completo', 'Meta_tasa_entrega', 'Meta_margen', 'Meta_utilizacion', 'Intervalo_servicio_km', 'Dias_alerta_vencimiento'];
 
 export default function Config() {
   const { user, call } = useSesion('admin');
